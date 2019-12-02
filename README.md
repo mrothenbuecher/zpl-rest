@@ -1,6 +1,6 @@
 # zpl-rest
 zpl-rest provides the following
-- REST-API to manage labels (written in ZPL), Printer and to print these Printers with these labels
+- REST-API to manage labels (written in ZPL), printer and to print these labels
 - a simple graphical user interface for this REST-API
 - you can use placeholder in your ZPL labels (${varname}) which will be replaced through the API e.g.:
 ```ZPL
