@@ -1,0 +1,25 @@
+{
+  "name": "zpl-rest",
+  "version": "0.9.0",
+  "description": "Webservice for Zebra ZPL printing",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "zebra",
+    "zpl",
+    "REST"
+  ],
+  "author": "Michael Rothenbücher",
+  "license": "ISC",
+  "dependencies": {
+    "diskdb": "^0.1.17",
+    "ejs": "^3.0.1",
+    "express": "^4.17.1",
+    "express-session": "^1.17.0",
+    "serve-favicon": "^2.5.0",
+    "websocket": "^1.0.30"
+  }
+}
