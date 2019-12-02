@@ -23,6 +23,9 @@ which you can replace with the following POST-request to `/rest/print`:
     }
 }
 ```
+## installation and start
+
+download this repo und run `npm start`
 
 ## frontend
 ![a screenshot of the frontend](https://github.com/mrothenbuecher/zpl-rest/raw/master/img/screenshot.png "screenshot")
