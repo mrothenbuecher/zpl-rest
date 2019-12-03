@@ -2,6 +2,7 @@
 zpl-rest provides the following
 - REST-API to manage labels (written in ZPL), printer and to print these labels
 - a simple graphical user interface for this REST-API
+- you can use mustache in your ZPL-Code
 - you can use placeholder in your ZPL labels (${varname}) which will be replaced through the API e.g.:
 ```ZPL
 ^XA
@@ -56,7 +57,6 @@ you can edit the config.js with following options:
 | secret              | string        | the session secret                             |           |
 
 ## future features
-- support for mustache.js in the zpl labels
 - option for reprinting failed printjobs
 - reprint printjobs
 

@@ -5,6 +5,10 @@ var path = require('path');
 const ConfigHandler = require('./lib/config.js');
 const config = ConfigHandler.getConfig();
 
+// mustache
+var Mustache = require('mustache');
+
+// express
 var express = require('express')
 var favicon = require('serve-favicon')
 var session = require('express-session')
@@ -13,7 +17,6 @@ var session = require('express-session')
 var rest = express()
 
 // ejs
-//ejs
 rest.set('view engine', 'ejs');
 rest.use(express.static(__dirname + '/html'));
 rest.use(favicon(path.join(__dirname, 'html', 'favicon.ico')))
@@ -56,7 +59,7 @@ rest.get('/', function(req, res) {
   var data = {};
   data.config = config;
   data.timespan = req.session.timespan ? req.session.timespan : 24;
-  res.render('index',data);
+  res.render('index', data);
 });
 
 // set timespan for index
@@ -72,14 +75,14 @@ rest.post('/rest/timespan/(:timespan)', function(req, res) {
 rest.get('/printer', function(req, res) {
   var data = {};
   data.config = config;
-  res.render('printer',data);
+  res.render('printer', data);
 });
 
 // Label
 rest.get('/label', function(req, res) {
   var data = {};
   data.config = config;
-  res.render('label',data);
+  res.render('label', data);
 });
 
 // rest section
@@ -137,9 +140,17 @@ rest.post('/rest/print', function(req, res) {
     job.zpl = job.zpl.replace("${" + key + "}", job.data[key])
   }
 
+  var mustache_reg = /{{(.*)}}/gm;
+  if (mustache_reg.exec(job.zpl)) {
+    job.mustache = true;
+    job.zpl = Mustache.render(job.zpl, job.data);
+  } else {
+    job.mustache = false;
+  }
+
   console.log((new Date()) + ' print job received', job);
 
-  executeRequest(job, function(ret){
+  executeRequest(job, function(ret) {
     job = ret;
     db.jobs.save(job);
 
@@ -150,38 +161,40 @@ rest.post('/rest/print', function(req, res) {
 
     res.json(job)
   });
-
 });
 
-function executeRequest(job, callback){
+function executeRequest(job, callback) {
   var client = new Net.Socket();
 
-  client.setTimeout(5000, function(){
-    console.error((new Date())+" "+"connection timed out");
+  client.setTimeout(5000, function() {
+    console.error((new Date()) + " " + "connection timed out");
     job.failed = true;
     job.error = "connection timed out";
     callback(job);
     client.end();
   });
 
-  client.connect({ port: job.printer_port, host: job.printer_ip }, function() {
-      client.write(job.zpl);
-      job.failed = false;
-      callback(job);
-      client.destroy();
+  client.connect({
+    port: job.printer_port,
+    host: job.printer_ip
+  }, function() {
+    client.write(job.zpl);
+    job.failed = false;
+    callback(job);
+    client.destroy();
   });
 
   client.on('error', function(err) {
-      console.error((new Date())+" "+err);
-      job.failed = true;
-      job.error = err;
-      callback(job);
-      client.destroy();
+    console.error((new Date()) + " " + err);
+    job.failed = true;
+    job.error = err;
+    callback(job);
+    client.destroy();
   });
 
   client.on('data', function(chunk) {
     job.printer_data = chunk;
-    console.log(new Date()+" received data from printer:", chunk);
+    console.log(new Date() + " received data from printer:", chunk);
   });
 
   client.on('end', function() {});
@@ -227,7 +240,7 @@ rest.post('/rest/label', function(req, res) {
     });
   } else {
     broadcast.action = "create";
-    if(!req.body.zpl) req.body.zpl = "^XA\n\n^XZ"
+    if (!req.body.zpl) req.body.zpl = "^XA\n\n^XZ"
     response = db.label.save(req.body);
   }
   broadcast.data = response;

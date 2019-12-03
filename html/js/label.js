@@ -112,7 +112,7 @@ $(document).ready(function() {
       return;
     }
     if (!$('#labelid').val()) {
-      toastr.info("Printer required")
+      toastr.info("Label required")
       return;
     }
 
@@ -127,10 +127,20 @@ $(document).ready(function() {
 
     var dat = {}
 
-    $('.print-param').find('input').each(function() {
-      $this = $(this);
-      dat[$this.attr("id")] = $this.val();
-    });
+    if($('.json-data').length > 0){
+      try{
+        dat = JSON.parse($('.json-data').find('textarea').val());
+        console.log("data: ",dat);
+      }catch(err){
+        toastr.error(err,"JSON not valid");
+        return;
+      }
+    }else{
+      $('.print-param').find('input').each(function() {
+        $this = $(this);
+        dat[$this.attr("id")] = $this.val();
+      });
+    }
 
     $.ajax({
       url: "/rest/print",
@@ -152,24 +162,31 @@ $(document).ready(function() {
         toastr.error('job failed')
       }
     });
+
   });
 
   function checkParams() {
-    var reg = /\${(.{1,})}/g;
+    var reg = /\${(.{1,})}/gm;
+    var mustache_reg = /{{(.*)}}/gm;
     $('.print-param').remove();
     var result;
     var keys = [];
     var duplicates = false;
-    while ((result = reg.exec($('#editzpl').val())) !== null) {
-      console.log("Keys", keys);
-      if (keys.includes(result[1])) {
-        toastr.info("Key:" + result[1], "Key duplicate found");
-        duplicates = true;
-      } else {
-        keys.push(result[1]);
-        $('#printer-id-group').after('<div class="form-group print-param"><label for="' + result[1] + '">' + result[1] + '</label><input type="text" class="form-control" id="' + result[1] + '" placeholder="' + result[1] + '"></div>');
+    if(mustache_reg.exec($('#editzpl').val())){
+      $('#printer-id-group').after('<div class="form-group print-param json-data"><label for="json">JSON - data</label><textarea class="form-control" id="json" placeholder="JSON" rows="5">{}</textarea></div>');
+    }else{
+      while ((result = reg.exec($('#editzpl').val())) !== null) {
+        console.log("Keys", keys);
+        if (keys.includes(result[1])) {
+          toastr.info("Key:" + result[1], "Key duplicate found");
+          duplicates = true;
+        } else {
+          keys.push(result[1]);
+          $('#printer-id-group').after('<div class="form-group print-param"><label for="' + result[1] + '">' + result[1] + '</label><input type="text" class="form-control" id="' + result[1] + '" placeholder="' + result[1] + '"></div>');
+        }
       }
-    }
+  }
+
     return duplicates;
   }
 
