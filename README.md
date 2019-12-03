@@ -23,6 +23,8 @@ which you can replace with the following POST-request to `/rest/print`:
     }
 }
 ```
+- you can test your zpl labels in the frontend
+
 ## installation and start
 
 download this repo und run `npm start`
@@ -39,11 +41,12 @@ download this repo und run `npm start`
 | get                 | /rest/jobs          | none                                                                                | list of all printjobs               |
 | post                | /rest/print         | {printer:"printer_id...",label:"label_id...", data: {...}}                          | actual print                        |
 | post                | /rest/printer       | to add : {address:"..",name:"..."} for update {_id:"...",address:"..",name:"..."}   | add or update a printer             |
-| post                | /rest/label         | to add : {name:"..."} for update {_id:"...",name:"..."}                             | add or update a label               |
+| post                | /rest/label         | to add : {name:"...",zpl:"..."} for update {_id:"...",name:"...",zpl:"..."}         | add or update a label               |
 | delete              | /rest/printer/(:id) | none                                                                                | removes a printer with the given id |
 | delete              | /rest/label/(:id)   | none                                                                                | removes a label with the given id   |
 
 ## options
+you can edit the config.js with following options:
 
 | Option              | Type          | description                                    |  Default  |
 | ------------------- |:-------------:| ---------------------------------------------- | :-------: |
@@ -51,6 +54,11 @@ download this repo und run `npm start`
 | websocket_port      | int           | websocket port for the frontend                |    8001   |
 | public              | bool          | if `false` server only reachable for localhost |     true  |
 | secret              | string        | the session secret                             |           |
+
+## future features
+- support for mustache.js in the zpl labels
+- option for reprinting failed printjobs
+- reprint printjobs
 
 # thanks to
 [template for the frontend](https://startbootstrap.com/themes/sb-admin-2/)
