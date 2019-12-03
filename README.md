@@ -62,3 +62,6 @@ you can edit the config.js with following options:
 
 # thanks to
 [template for the frontend](https://startbootstrap.com/themes/sb-admin-2/)
+
+# a little help is welcome :)
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=KNC9P27TLHGDE&source=url)
