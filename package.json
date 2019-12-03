@@ -13,7 +13,8 @@
     "REST"
   ],
   "author": "Michael Rothenbücher",
-  "license": "ISC",
+  "license": "MIT",
+  "publishConfig": { "registry": "https://npm.pkg.github.com/" },
   "dependencies": {
     "diskdb": "^0.1.17",
     "ejs": "^3.0.1",
