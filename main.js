@@ -155,7 +155,6 @@ rest.post('/rest/print', function(req, res) {
 
 function executeRequest(job, callback){
   var client = new Net.Socket();
-  console.log(client);
 
   client.setTimeout(5000, function(){
     console.error((new Date())+" "+"connection timed out");
@@ -228,7 +227,7 @@ rest.post('/rest/label', function(req, res) {
     });
   } else {
     broadcast.action = "create";
-    req.body.zpl = "^XA\n\n^XZ"
+    if(!req.body.zpl) req.body.zpl = "^XA\n\n^XZ"
     response = db.label.save(req.body);
   }
   broadcast.data = response;
