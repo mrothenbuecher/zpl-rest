@@ -1,5 +1,6 @@
 var fs = require('fs');
 var path = require('path');
+var request = require('request');
 
 // config stuff
 const ConfigHandler = require('./lib/config.js');
@@ -97,6 +98,102 @@ rest.get('/rest/label', function(req, res) {
 rest.get('/rest/jobs', function(req, res) {
   res.json(db.jobs.find())
 });
+
+// preview zpl code
+rest.post('/rest/preview', function(req, res) {
+  var response = {};
+  if (!req.body.printer) {
+    return res.status(400).send('no printer id was given');
+  }
+  if (!req.body.label) {
+    return res.status(400).send('no label id was given');
+  }
+
+  var printer = db.printer.findOne({
+    _id: req.body.printer
+  });
+  if (!printer) {
+    return res.status(400).send('given printer id was not valid');
+  }
+  var label = db.label.findOne({
+    _id: req.body.label
+  });
+  if (!label) {
+    return res.status(400).send('given label id was not valid');
+  }
+
+  if (!printer.density) {
+    return res.status(400).send('in this printer no density is defined');
+  }
+
+  if (!label.width) {
+    return res.status(400).send('in this label no width is defined');
+  }
+
+  if (!label.height) {
+    return res.status(400).send('in this label no height is defined');
+  }
+
+  getPreview(res,req,printer,label, (req.body.zpl?req.body.zpl:label.zpl));
+
+});
+
+rest.get('/rest/preview', function(req, res) {
+  var response = {};
+  if (!req.query.printer) {
+    return res.status(400).send('no printer id was given');
+  }
+  if (!req.query.label) {
+    return res.status(400).send('no label id was given');
+  }
+
+  var printer = db.printer.findOne({
+    _id: req.query.printer
+  });
+  if (!printer) {
+    return res.status(400).send('given printer id was not valid');
+  }
+  var label = db.label.findOne({
+    _id: req.query.label
+  });
+  if (!label) {
+    return res.status(400).send('given label id was not valid');
+  }
+
+  if (!printer.density) {
+    return res.status(400).send('in this printer no density is defined');
+  }
+
+  if (!label.width) {
+    return res.status(400).send('in this label no width is defined');
+  }
+
+  if (!label.height) {
+    return res.status(400).send('in this label no height is defined');
+  }
+
+  getPreview(res,req,printer,label,(req.query.zpl?req.query.zpl:label.zpl));
+
+});
+
+function getPreview(res,req,printer,label,zpl){
+  var options = {
+    encoding: null,
+    formData: {
+      file: zpl
+    },
+    url: 'http://api.labelary.com/v1/printers/'+printer.density+'/labels/'+label.width+'x'+label.height+'/0/' // adjust print density (8dpmm), label width (4 inches), label height (6 inches), and label index (0) as necessary
+  };
+
+  request.post(options, function(err, resp, body) {
+    if (err) {
+      console.log((new Date()), err);
+      res.json(err);
+    }else{
+      res.send(body);
+    }
+  });
+}
 
 // actuall print
 rest.post('/rest/print', function(req, res) {

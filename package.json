@@ -14,13 +14,16 @@
   ],
   "author": "Michael Rothenbücher",
   "license": "MIT",
-  "publishConfig": { "registry": "https://npm.pkg.github.com/" },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
   "dependencies": {
     "diskdb": "^0.1.17",
     "ejs": "^3.0.1",
     "express": "^4.17.1",
     "express-session": "^1.17.0",
     "mustache": "^3.1.0",
+    "request": "^2.88.0",
     "serve-favicon": "^2.5.0",
     "websocket": "^1.0.30"
   }

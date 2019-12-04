@@ -85,7 +85,7 @@
           </div>
 
           <div class="row">
-            <div class="col-lg-12">
+            <div class="col-lg-6">
               <!-- Basic Card Example -->
               <div class="card shadow mb-4">
                 <div class="card-header py-3">
@@ -101,15 +101,25 @@
                       <label for="newaddress">Address</label>
                       <input type="text" class="form-control" id="newaddress" name="newaddress" placeholder="Printer Address IP:Port eg. 127.0.0.1:9100">
                     </div>
+                    <div class="form-group">
+                      <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" role="button" id="newdensity" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          Density / Resolution
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                          <a class="dropdown-item density-item" data-density="6dpmm" href="#">6 dpmm / 152 dpi</a>
+                          <a class="dropdown-item density-item" data-density="8dpmm" href="#">8 dpmm / 200 dpi</a>
+                          <a class="dropdown-item density-item" data-density="12dpmm" href="#">12 dpmm / 300 dpi</a>
+                          <a class="dropdown-item density-item" data-density="24dpmm" href="#">24 dpmm / 600 dpi</a>
+                        </div>
+                      </div>
+                    </div>
                     <div class="btn btn-primary" id="createprinter">Create</div>
                   </form>
                 </div>
               </div>
             </div>
-          </div>
-
-          <div class="row">
-            <div class="col-lg-12">
+            <div class="col-lg-6">
               <!-- Basic Card Example -->
               <div class="card shadow mb-4">
                 <div class="card-header py-3">
@@ -123,6 +133,59 @@
                     <div class="dropdown-menu printer-dropdown" aria-labelledby="dropdownMenuButton">
                     </div>
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-lg-12">
+              <!-- Basic Card Example -->
+              <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                  <h6 class="m-0 font-weight-bold text-primary">Edit Printer</h6>
+                </div>
+                <div class="card-body">
+                  <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="edit-printer" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      Printer
+                    </button>
+                    <div class="dropdown-menu printer-dropdown" aria-labelledby="dropdownMenuButton">
+                    </div>
+                  </div>
+                  <form>
+                    <div class="form-group" style="margin-top: 20px;">
+                      <label for="printerid">Printer ID</label>
+                      <div class="input-group mb-3">
+                        <input type="text" class="form-control" id="printerid" placeholder="ID for REST" readonly>
+                        <div class="input-group-append">
+                          <button class="btn btn-primary copy-button" type="button" data-target="printerid"><i class="fas fa-copy"></i></button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label for="editname">Name</label>
+                      <input type="text" class="form-control" id="editname" name="editname" placeholder="Printer Name">
+                    </div>
+                    <div class="form-group">
+                      <label for="editaddress">Address</label>
+                      <input type="text" class="form-control" id="editaddress" name="editaddress" placeholder="Printer Address IP:Port eg. 127.0.0.1:9100">
+                    </div>
+                    <div class="form-group">
+                      <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" role="button" id="editdensity" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          Density / Resolution
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                          <a class="dropdown-item density-item" data-density="6dpmm" href="#">6 dpmm / 152 dpi</a>
+                          <a class="dropdown-item density-item" data-density="8dpmm" href="#">8 dpmm / 200 dpi</a>
+                          <a class="dropdown-item density-item" data-density="12dpmm" href="#">12 dpmm / 300 dpi</a>
+                          <a class="dropdown-item density-item" data-density="24dpmm" href="#">24 dpmm / 600 dpi</a>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="btn btn-primary" id="editprinter">Update</div>
+                  </form>
                 </div>
               </div>
             </div>

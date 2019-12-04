@@ -7,11 +7,15 @@ $(document).ready(function() {
       contentType: 'application/json',
       data: JSON.stringify({
         name: $('#newname').val(),
+        width: $('#newwidth').val(),
+        height: $('#newheight').val()
       }),
       dataType: 'json',
       success: function(data) {
         toastr.info('label saved');
         $('#newname').val("");
+        $('#newwidth').val("");
+        $('#newheight').val("");
       },
       error: function(data) {
         toastr.error('creation failed')
@@ -21,13 +25,26 @@ $(document).ready(function() {
 
   $('#test-printer').click(function(ev) {
     $('#printerid').val("");
+    $('#printerid').data("printer","");
     $(this).parent().find('a.dropdown-item').each(function() {
       var $item = $(this);
       if ($item.data("events") == undefined) {
         $item.click(function(ev) {
           var $this = $(this);
-          $('#printerid').val($this.data('id'));
-          enableTestButton();
+          var $this = $(this);
+          $.getJSON("/rest/printer/", function(data) {
+            $.each(data, function(index, value) {
+              if (value._id == $this.data("id")) {
+                $('#printerid').val(value._id);
+                $('#printerid').data("printer",value);
+                if($('#labelid').val() && $('#printerid').val()){
+                  $("#imgContainer").find("img").attr("src","/rest/preview?printer="+encodeURIComponent($('#printerid').val())+"&label="+encodeURIComponent($('#labelid').val()));
+                }
+                enableTestButton();
+                return;
+              }
+            });
+          });
         });
       }
     });
@@ -45,8 +62,15 @@ $(document).ready(function() {
                 $('#labelid').val(value._id);
                 $('#editname').val(value.name);
                 $('#editname').data("original", value.name);
+                $('#editwidth').val(value.width);
+                $('#editwidth').data("original", value.width);
+                $('#editheight').val(value.height);
+                $('#editheight').data("original", value.height);
                 $('#editzpl').val(value.zpl);
                 $('#editzpl').data("original", value.zpl);
+                if($('#labelid').val() && $('#printerid').val()){
+                  $("#imgContainer").find("img").attr("src","/rest/preview?printer="+encodeURIComponent($('#printerid').val())+"&label="+encodeURIComponent($('#labelid').val()));
+                }
                 enableTestButton();
               }
             });
@@ -64,13 +88,20 @@ $(document).ready(function() {
       data: JSON.stringify({
         _id: $('#labelid').val(),
         name: $('#editname').val(),
-        zpl: $('#editzpl').val()
+        zpl: $('#editzpl').val(),
+        width: $('#editwidth').val(),
+        height: $('#editheight').val()
       }),
       dataType: 'json',
       success: function(data) {
         toastr.info('label updated');
+        if($('#labelid').val() && $('#printerid').val()){
+          $("#imgContainer").find("img").attr("src","/rest/preview?printer="+encodeURIComponent($('#printerid').val())+"&label="+encodeURIComponent($('#labelid').val()));
+        }
         $('#editname').data("original", $('#editname').val());
         $('#editzpl').data("original", $('#editzpl').val());
+        $('#editwidth').data("original", $('#editwidth').val());
+        $('#editheight').data("original", $('#editheight').val());
         enableTestButton();
       },
       error: function(data) {
@@ -84,6 +115,9 @@ $(document).ready(function() {
   });
 
   $('#editzpl').change(function() {
+    if($('#labelid').val() && $('#printerid').val()){
+      $("#imgContainer").find("img").attr("src","/rest/preview?printer="+encodeURIComponent($('#printerid').val())+"&label="+encodeURIComponent($('#labelid').val())+"&zpl="+encodeURIComponent($('#editzpl').val()));
+    }
     enableTestButton();
   });
 
@@ -96,6 +130,9 @@ $(document).ready(function() {
           $.ajax({
             url: "/rest/label/" + $this.data("id"),
             type: 'delete',
+            success: function(data){
+              toastr.info('label deleted');
+            },
             error: function(data) {
               toastr.error('delete failed')
             }
@@ -120,6 +157,8 @@ $(document).ready(function() {
     var ok = true;
     ok = ok && $('#editname').val() == $('#editname').data("original");
     ok = ok && $('#editzpl').val() == $('#editzpl').data("original");
+    ok = ok && $('#editheight').val() == $('#editheight').data("original");
+    ok = ok && $('#editwidth').val() == $('#editwidth').data("original");
     if(!ok){
       toastr.info("Save the changed Label :)", "Save the Label")
       return;
