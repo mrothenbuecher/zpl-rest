@@ -3,6 +3,7 @@ zpl-rest provides the following
 - REST-API to manage labels (written in ZPL), printer and to print these labels
 - a simple graphical user interface for this REST-API
 - you can use mustache in your ZPL-Code
+- you can preview the result of your ZPL-Code
 - you can use placeholder in your ZPL labels (${varname}) which will be replaced through the API e.g.:
 ```ZPL
 ^XA
@@ -42,7 +43,7 @@ download this repo und run `npm start`
 | get                 | /rest/jobs          | none                                                                                                                          | list of all printjobs                                                                       |
 | get                 | /rest/preview       | ?printer=printer_id&label=label_id(&zpl=...)                                                                                  | generates a preview of the label using [this service](http://labelary.com/service.html#node)|
 | post                | /rest/print         | {printer:"printer_id...",label:"label_id...", data: {...}}                                                                    | actual print                                                                                |
-| post                | /rest/preview       | {printer:"printer_id...",label:"label_id..."}                                                                                 | generates a preview of the label using [this service](http://labelary.com/service.html#node)|
+| post                | /rest/preview       | {printer:"printer_id...",label:"label_id..."(,zpl:"...")}                                                                     | generates a preview of the label using [this service](http://labelary.com/service.html#node)|
 | post                | /rest/printer       | to add : {address:"..",name:"...",density:"..."} for update {_id:"...",address:"..",name:"...",density:"..."}                 | add or update a printer                                                                     |
 | post                | /rest/label         | to add : {name:"...",zpl:"...",width:"...",height:"..."} for update {_id:"...",name:"...",zpl:"...",width:"...",height:"..."} | add or update a label                                                                       |
 | delete              | /rest/printer/(:id) | none                                                                                                                          | removes a printer with the given id                                                         |
@@ -64,6 +65,7 @@ you can edit the config.js with following options:
 
 # thanks to
 [template for the frontend](https://startbootstrap.com/themes/sb-admin-2/)
+[labelary for providing the preview service](http://labelary.com/service.html#node)
 
 # a little help is welcome :)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=KNC9P27TLHGDE&source=url)
