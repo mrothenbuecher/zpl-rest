@@ -65,6 +65,7 @@ you can edit the config.js with following options:
 
 # thanks to
 [template for the frontend](https://startbootstrap.com/themes/sb-admin-2/)
+
 [labelary for providing the preview service](http://labelary.com/service.html#node)
 
 # a little help is welcome :)
