@@ -2,6 +2,28 @@ $(document).ready(function() {
   updatePrinterDropdown();
   updateLabelDropdown();
 
+  $('#timespan').text($('.time-item[data-time="'+$('#timespan').data("time")+'"]').text());
+
+  $('.time-item').click(function() {
+    $this = $(this);
+    var hours = parseInt($this.data("time"));
+    $('#timespan').text($this.text());
+    $('#timespan').data("time", hours);
+
+    $.ajax({
+      url: "/rest/timespan/"+hours,
+      type: 'post',
+      contentType: 'application/json',
+      dataType: 'json',
+      error: function(data) {
+        toastr.error('failed to update timespan')
+      }
+    });
+
+    if(typeof changeTimespan === "function")
+      changeTimespan(hours);
+  });
+
   $('.copy-button').click(function(){
     $this = $(this);
     if(!$this.data("target")){

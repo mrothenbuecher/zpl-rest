@@ -1,31 +1,11 @@
+
+var changeTimespan;
+
 $(document).ready(function() {
-
-  $('#timespan').text($('.time-item[data-time="'+$('#timespan').data("time")+'"]').text());
-
-  $('.time-item').click(function() {
-    $this = $(this);
-    var hours = parseInt($this.data("time"));
-    $('#timespan').text($this.text());
-    $('#timespan').data("time", hours);
-
-    $.ajax({
-      url: "/rest/timespan/"+hours,
-      type: 'post',
-      contentType: 'application/json',
-      dataType: 'json',
-      error: function(data) {
-        toastr.error('failed to update timespan')
-      }
-    });
-
-    changeTimespan(hours);
-  });
-
-  changeTimespan(parseInt($('#timespan').data("time")));
 
   var components = {};
 
-  function changeTimespan(hours) {
+  changeTimespan = function (hours) {
     var now = new Date();
     $.getJSON("/rest/jobs", function(data) {
       var result = [];
@@ -152,6 +132,8 @@ $(document).ready(function() {
       console.log("Overall", result, " Printer count", list_printer.length, "Label count", list_label.length, jobcount_by_printer);
     });
   }
+
+  changeTimespan(parseInt($('#timespan').data("time")));
 
   function createPieChart(id, label, data) {
     // Set new default font family and font color to mimic Bootstrap's default styling

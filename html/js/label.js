@@ -69,7 +69,22 @@ $(document).ready(function() {
                 $('#editzpl').val(value.zpl);
                 $('#editzpl').data("original", value.zpl);
                 if($('#labelid').val() && $('#printerid').val()){
-                  $("#imgContainer").find("img").attr("src","/rest/preview?printer="+encodeURIComponent($('#printerid').val())+"&label="+encodeURIComponent($('#labelid').val()));
+                  $.ajax({
+                    url: "/rest/preview",
+                    type: 'post',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                      printer: $('#printerid').val(),
+                      label: $('#labelid').val()
+                    }),
+                    dataType: 'json',
+                    success: function(data) {
+                      $("#imgContainer").find("img").attr("src","data:image/png;base64, "+data.img);
+                    },
+                    error: function(data) {
+                      toastr.error(JSON.stringify(data),'preview failed')
+                    }
+                  });
                 }
                 enableTestButton();
               }
@@ -96,7 +111,22 @@ $(document).ready(function() {
       success: function(data) {
         toastr.info('label updated');
         if($('#labelid').val() && $('#printerid').val()){
-          $("#imgContainer").find("img").attr("src","/rest/preview?printer="+encodeURIComponent($('#printerid').val())+"&label="+encodeURIComponent($('#labelid').val()));
+          $.ajax({
+            url: "/rest/preview",
+            type: 'post',
+            contentType: 'application/json',
+            data: JSON.stringify({
+              printer: $('#printerid').val(),
+              label: $('#labelid').val()
+            }),
+            dataType: 'json',
+            success: function(data) {
+              $("#imgContainer").find("img").attr("src","data:image/png;base64, "+data.img);
+            },
+            error: function(data) {
+              toastr.error(JSON.stringify(data),'preview failed')
+            }
+          });
         }
         $('#editname').data("original", $('#editname').val());
         $('#editzpl').data("original", $('#editzpl').val());
@@ -116,7 +146,23 @@ $(document).ready(function() {
 
   $('#editzpl').change(function() {
     if($('#labelid').val() && $('#printerid').val()){
-      $("#imgContainer").find("img").attr("src","/rest/preview?printer="+encodeURIComponent($('#printerid').val())+"&label="+encodeURIComponent($('#labelid').val())+"&zpl="+encodeURIComponent($('#editzpl').val()));
+      $.ajax({
+        url: "/rest/preview",
+        type: 'post',
+        contentType: 'application/json',
+        data: JSON.stringify({
+          printer: $('#printerid').val(),
+          label: $('#labelid').val(),
+          zpl: $('#editzpl').val()
+        }),
+        dataType: 'json',
+        success: function(data) {
+          $("#imgContainer").find("img").attr("src","data:image/png;base64, "+data.img);
+        },
+        error: function(data) {
+          toastr.error(JSON.stringify(data),'preview failed')
+        }
+      });
     }
     enableTestButton();
   });

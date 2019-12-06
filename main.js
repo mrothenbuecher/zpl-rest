@@ -86,6 +86,14 @@ rest.get('/label', function(req, res) {
   res.render('label', data);
 });
 
+// reprint
+rest.get('/reprint', function(req, res) {
+  var data = {};
+  data.config = config;
+  data.timespan = req.session.timespan ? req.session.timespan : 24;
+  res.render('reprint', data);
+});
+
 // rest section
 rest.get('/rest/printer', function(req, res) {
   res.json(db.printer.find())
@@ -113,13 +121,13 @@ rest.post('/rest/preview', function(req, res) {
     _id: req.body.printer
   });
   if (!printer) {
-    return res.status(400).send('given printer id was not valid');
+    return res.status(400).send('given printer id ('+req.body.printer+') was not valid');
   }
   var label = db.label.findOne({
     _id: req.body.label
   });
   if (!label) {
-    return res.status(400).send('given label id was not valid');
+    return res.status(400).send('given label id ('+req.body.label+') was not valid');
   }
 
   if (!printer.density) {
@@ -190,10 +198,64 @@ function getPreview(res,req,printer,label,zpl){
       console.log((new Date()), err);
       res.json(err);
     }else{
-      res.send(body);
+      res.json({"img":new Buffer(body).toString('base64')});
     }
   });
 }
+
+// actuall reprint
+rest.post('/rest/reprint/(:id)', function(req, res) {
+  var response = {};
+  if (!req.params.id) {
+    return res.status(400).send('no job id was given');
+  }
+
+  var job = db.jobs.findOne({
+    _id: req.params.id
+  });
+
+  if (!job) {
+    return res.status(400).send('given job id was not valid');
+  }
+
+  if(req.body.printer){
+    var printer = db.printer.findOne({
+      _id: req.body.printer
+    });
+    if (!printer) {
+      return res.status(400).send('given printer id was not valid');
+    }
+    job.printer_id = printer._id;
+    job.printer_name = printer.name;
+    job.printer_address = printer.address;
+    job.printer_ip = printer.address.split(':')[0];
+    job.printer_port = parseInt(printer.address.split(':')[1]);
+  }
+
+  if(req.body.zpl){
+    job.zpl = req.body.zpl;
+  }
+
+  var old_id = job._id;
+  delete job._id;
+  job.date = new Date();
+  job.reprint = true;
+  job.previous_id = old_id;
+
+  console.log((new Date()) + ' reprint job received', job);
+
+  executeRequest(job, function(ret) {
+    job = ret;
+    db.jobs.save(job);
+
+    var broadcast = {};
+    broadcast.source = "job";
+    broadcast.data = job;
+    broadcastMsg(broadcast);
+
+    res.json(job)
+  });
+});
 
 // actuall print
 rest.post('/rest/print', function(req, res) {
@@ -224,7 +286,6 @@ rest.post('/rest/print', function(req, res) {
   job.printer_name = printer.name;
   job.printer_address = printer.address;
   job.printer_ip = printer.address.split(':')[0];
-  console.log(printer.address.split(':'));
   job.printer_port = parseInt(printer.address.split(':')[1]);
   job.label_id = label._id;
   job.label_name = label.name;

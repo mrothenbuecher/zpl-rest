@@ -4,6 +4,8 @@ zpl-rest provides the following
 - a simple graphical user interface for this REST-API
 - you can use mustache in your ZPL-Code
 - you can preview the result of your ZPL-Code
+- you can test print your ZPL-Code
+- you can review and reprint printjobs
 - you can use placeholder in your ZPL labels (${varname}) which will be replaced through the API e.g.:
 ```ZPL
 ^XA
@@ -25,7 +27,7 @@ which you can replace with the following POST-request to `/rest/print`:
     }
 }
 ```
-- you can test your zpl labels in the frontend
+
 
 ## installation and start
 
@@ -33,24 +35,27 @@ download this repo und run `npm start`
 
 ## frontend
 - overview page with statistics
-![a screenshot of the frontend](https://github.com/mrothenbuecher/zpl-rest/raw/master/img/screenshot.png "screenshot")
+![a screenshot of the frontend](https://github.com/mrothenbuecher/zpl-rest/raw/master/img/screenshot.png "Overview")
+-
+![a screenshot of the reprint page](https://github.com/mrothenbuecher/zpl-rest/raw/master/img/screenshot3.png "Reprint page")
 - label page, with label preview
-![a screenshot of the frontend](https://github.com/mrothenbuecher/zpl-rest/raw/master/img/screenshot2.png "screenshot")
+![a screenshot of the frontend](https://github.com/mrothenbuecher/zpl-rest/raw/master/img/screenshot2.png "Label page")
 
 ## REST-API
 
-| Method              | Path                | parameter                                                                                                                     | description                                                                                 |
-| ------------------- | ------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| get                 | /rest/printer       | none                                                                                                                          | list of all printers                                                                        |
-| get                 | /rest/label         | none                                                                                                                          | list of all labels                                                                          |
-| get                 | /rest/jobs          | none                                                                                                                          | list of all printjobs                                                                       |
-| get                 | /rest/preview       | ?printer=printer_id&label=label_id(&zpl=...)                                                                                  | generates a preview of the label using [this service](http://labelary.com/service.html#node)|
-| post                | /rest/print         | {printer:"printer_id...",label:"label_id...", data: {...}}                                                                    | actual print                                                                                |
-| post                | /rest/preview       | {printer:"printer_id...",label:"label_id..."(,zpl:"...")}                                                                     | generates a preview of the label using [this service](http://labelary.com/service.html#node)|
-| post                | /rest/printer       | to add : {address:"..",name:"...",density:"..."} for update {_id:"...",address:"..",name:"...",density:"..."}                 | add or update a printer                                                                     |
-| post                | /rest/label         | to add : {name:"...",zpl:"...",width:"...",height:"..."} for update {_id:"...",name:"...",zpl:"...",width:"...",height:"..."} | add or update a label                                                                       |
-| delete              | /rest/printer/(:id) | none                                                                                                                          | removes a printer with the given id                                                         |
-| delete              | /rest/label/(:id)   | none                                                                                                                          | removes a label with the given id                                                           |
+| Method              | Path                      | parameter                                                                                                                     | description                                                                                           |
+| ------------------- | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| get                 | /rest/printer             | none                                                                                                                          | list of all printers                                                                                  |
+| get                 | /rest/label               | none                                                                                                                          | list of all labels                                                                                    |
+| get                 | /rest/jobs                | none                                                                                                                          | list of all printjobs                                                                                 |
+| get                 | /rest/preview             | ?printer=printer_id&label=label_id(&zpl=...)                                                                                  | generates a preview of the label using [this service](http://labelary.com/service.html#node) as base64|
+| post                | /rest/print               | {printer:"printer_id...",label:"label_id...", data: {...}}                                                                    | actual print                                                                                          |
+| post                | /rest/reprint/(:jobid)    | ({printer:"printer_id...", zpl:"..."})                                                                                        | reprint, change printer if wanted or ZPL-code                                                         |
+| post                | /rest/preview             | {printer:"printer_id...",label:"label_id..."(,zpl:"...")}                                                                     | generates a preview of the label using [this service](http://labelary.com/service.html#node) as base64|
+| post                | /rest/printer             | to add : {address:"..",name:"...",density:"..."} for update {_id:"...",address:"..",name:"...",density:"..."}                 | add or update a printer                                                                               |
+| post                | /rest/label               | to add : {name:"...",zpl:"...",width:"...",height:"..."} for update {_id:"...",name:"...",zpl:"...",width:"...",height:"..."} | add or update a label                                                                                 |
+| delete              | /rest/printer/(:printerid)| none                                                                                                                          | removes a printer with the given id                                                                   |
+| delete              | /rest/label/(:labelid)    | none                                                                                                                          | removes a label with the given id                                                                     |
 
 ## options
 you can edit the config.js with following options:
@@ -61,10 +66,6 @@ you can edit the config.js with following options:
 | websocket_port      | int           | websocket port for the frontend                |    8001   |
 | public              | bool          | if `false` server only reachable for localhost |     true  |
 | secret              | string        | the session secret                             |           |
-
-## future features
-- option for reprinting failed printjobs
-- reprint printjobs
 
 # thanks to
 [template for the frontend](https://startbootstrap.com/themes/sb-admin-2/)
