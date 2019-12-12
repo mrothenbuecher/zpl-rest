@@ -1,3 +1,5 @@
+[take part in this little survey](https://forms.gle/7CUv6PXQuTXQQgsR9)
+
 # zpl-rest
 zpl-rest provides the following
 - REST-API to manage labels (written in ZPL), printer and to print these labels
