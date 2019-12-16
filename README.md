@@ -38,7 +38,7 @@ download this repo und run `npm start`
 ## frontend
 - overview page with statistics
 ![a screenshot of the frontend](https://github.com/mrothenbuecher/zpl-rest/raw/master/img/screenshot.png "Overview")
--
+- reprint page, here you can print / review old printjobs
 ![a screenshot of the reprint page](https://github.com/mrothenbuecher/zpl-rest/raw/master/img/screenshot3.png "Reprint page")
 - label page, with label preview
 ![a screenshot of the frontend](https://github.com/mrothenbuecher/zpl-rest/raw/master/img/screenshot2.png "Label page")
