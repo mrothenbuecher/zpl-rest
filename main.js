@@ -13,9 +13,13 @@ var Mustache = require('mustache');
 var express = require('express')
 var favicon = require('serve-favicon')
 var session = require('express-session')
+var cors = require('cors')
 
 // express stuff
 var rest = express()
+
+//cors
+rest.use(cors())
 
 // ejs
 rest.set('view engine', 'ejs');
@@ -36,8 +40,6 @@ rest.use(session({
 // JSON
 rest.use(express.json());
 
-
-
 // datastorage stuff
 if (!fs.existsSync(__dirname + '/db')) {
   fs.mkdirSync(__dirname + '/db');
@@ -53,14 +55,6 @@ var http = require('http');
 
 // socket for sending data to the printer
 const Net = require('net');
-
-// cors option
-rest.use(function(res, next) {
-  res.header("Access-Control-Allow-Origin", "http://localhost:3000"); // use your own domain
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  res.header("Access-Control-Allow-Credentials", true)
-  next();
-});
 
 // Main
 rest.get('/', function(req, res) {
