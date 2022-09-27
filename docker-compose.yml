@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  zpl:
+    build:
+      context: .
+    restart: always
+    ports:
+      - 8000:8000
+    volumes:
+      - ./volumes:/app/db
