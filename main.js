@@ -330,7 +330,7 @@ function executeRequest(job, callback) {
     job.failed = true;
     job.error = "connection timed out";
     callback(job);
-    client.end();
+    client.destroy();
   });
 
   client.connect({
