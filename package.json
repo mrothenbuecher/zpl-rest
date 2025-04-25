@@ -21,7 +21,7 @@
     "cors": "^2.8.5",
     "diskdb": "^0.1.17",
     "ejs": "^3.1.10",
-    "express": "^4.17.3",
+    "express": "^4.19.2",
     "express-session": "^1.17.0",
     "mustache": "^3.1.0",
     "request": "^2.88.0",
