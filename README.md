@@ -1,15 +1,63 @@
-[take part in this little survey](https://forms.gle/7CUv6PXQuTXQQgsR9)
-
 # zpl-rest
-zpl-rest provides the following
-- REST-API to manage labels (written in ZPL), printer and to print these labels
-- a simple graphical user interface for this REST-API
-- you can use mustache in your ZPL-Code
-- you can preview the result of your ZPL-Code
-- you can test print your ZPL-Code
-- you can review and reprint printjobs
-- you can use placeholder in your ZPL labels (${varname}) which will be replaced through the API e.g.:
-```ZPL
+
+Print to Zebra label printers from any system via HTTP. zpl-rest is a self-hosted print server that stores your ZPL templates, fills in placeholders from JSON and sends the result to the printer over the network. A web UI shows label previews, print statistics and past print jobs.
+
+![Dashboard with print statistics](https://github.com/mrothenbuecher/zpl-rest/raw/master/img/screenshot.png "Overview")
+
+## Why zpl-rest
+
+Zebra printers accept raw ZPL on TCP port 9100, but sending it from an ERP, a warehouse app or a shell script usually means writing socket code in every system. zpl-rest moves that into one place. Your applications send a short JSON request with the label name and the data, and zpl-rest handles templates, printer addresses and the job history.
+
+## Features
+
+- REST API to manage printers and ZPL label templates
+- Placeholders (`${varname}`) and [Mustache](https://mustache.github.io/) syntax inside ZPL
+- Label preview rendered via the [Labelary](http://labelary.com/service.html) API
+- Test print directly from the web UI
+- Job history with reprint, optionally on a different printer or with edited ZPL
+- Optional `job_id` to match print jobs with records in your own system
+- Runs with Node.js or Docker, data stored as JSON files on disk
+
+## Quick start
+
+### Docker
+
+```bash
+git clone https://github.com/mrothenbuecher/zpl-rest.git
+cd zpl-rest
+docker compose up -d
+```
+
+The web UI is then available at `http://localhost:8110`. Printers, labels and jobs are stored in `./volumes` on the host.
+
+### Node.js
+
+```bash
+git clone https://github.com/mrothenbuecher/zpl-rest.git
+cd zpl-rest
+npm install
+npm start
+```
+
+The web UI is then available at `http://localhost:8000`.
+
+## Usage
+
+### 1. Add a printer
+
+The address is the printer's IP and raw port, usually 9100. The density is the print resolution in dots per millimetre as used by Labelary (`6dpmm`, `8dpmm`, `12dpmm` or `24dpmm`).
+
+```bash
+curl -X POST http://localhost:8000/rest/printer \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Warehouse 1", "address": "192.168.0.50:9100", "density": "8dpmm"}'
+```
+
+### 2. Add a label template
+
+Width and height are given in inches.
+
+```zpl
 ^XA
 ^LH0,0
 ^MTT
@@ -19,63 +67,86 @@ zpl-rest provides the following
 ^XZ
 ```
 
-which you can replace with the following POST-request to `/rest/print`:
-```JSON
+### 3. Print
+
+```bash
+curl -X POST http://localhost:8000/rest/print \
+  -H "Content-Type: application/json" \
+  -d '{
+        "printer": "<printer id>",
+        "label": "<label id>",
+        "job_id": "order-4711",
+        "data": { "sometext": "hello world" }
+      }'
+```
+
+zpl-rest replaces `${sometext}` with `hello world` and sends the finished ZPL to the printer. The `job_id` is optional. It is stored with the job and shown in the dashboard failure list and on the reprint page.
+
+## Web UI
+
+Reprint page with the history of all print jobs:
+
+![Reprint page](https://github.com/mrothenbuecher/zpl-rest/raw/master/img/screenshot3.png "Reprint page")
+
+Label editor with live preview:
+
+![Label page with preview](https://github.com/mrothenbuecher/zpl-rest/raw/master/img/screenshot2.png "Label page")
+
+## REST API
+
+| Method | Path | Body / query | Description |
+| ------ | ---- | ------------ | ----------- |
+| GET | `/rest/printer` | none | List all printers |
+| GET | `/rest/label` | none | List all labels |
+| GET | `/rest/jobs` | none | List all print jobs |
+| GET | `/rest/preview` | `?printer=<id>&label=<id>(&zpl=...)` | Label preview as base64 image |
+| POST | `/rest/preview` | `{printer, label (, zpl)}` | Label preview as base64 image |
+| POST | `/rest/print` | `{printer, label, data (, job_id)}` | Print a label |
+| POST | `/rest/reprint/:jobid` | `({printer, zpl})` | Reprint a job, optionally with another printer or changed ZPL |
+| POST | `/rest/printer` | add: `{name, address, density}`<br>update: `{_id, name, address, density}` | Add or update a printer |
+| POST | `/rest/label` | add: `{name, zpl, width, height}`<br>update: `{_id, name, zpl, width, height}` | Add or update a label |
+| DELETE | `/rest/printer/:printerid` | none | Remove a printer |
+| DELETE | `/rest/label/:labelid` | none | Remove a label |
+
+## Configuration
+
+Settings go into `config.json` in the project root. Any option you leave out uses its default.
+
+```json
 {
-    printer:"printer id",
-    label:"id of the label",
-    job_id:"optional",
-    data : {
-      sometext: "hello world"
-    }
+  "port": 8000,
+  "websocket_port": 8001,
+  "public": true,
+  "secret": "change-me"
 }
 ```
 
+| Option | Type | Description | Default |
+| ------ | ---- | ----------- | ------- |
+| `port` | int | Port for the REST API and web UI | `8000` |
+| `websocket_port` | int | WebSocket port used by the web UI | `8001` |
+| `public` | bool | If `false`, the server only listens on localhost | `true` |
+| `secret` | string | Session secret, set your own value in production | `top_secret` |
 
-## installation and start
+## Privacy note
 
-download this repo und run `npm start`
+Label previews are rendered by the external Labelary service. The ZPL of the label is sent to `api.labelary.com` for every preview. Printing itself goes directly from zpl-rest to your printer and does not use Labelary.
 
-## frontend
-- overview page with statistics
-![a screenshot of the frontend](https://github.com/mrothenbuecher/zpl-rest/raw/master/img/screenshot.png "Overview")
-- reprint page, here you can print / review old printjobs
-![a screenshot of the reprint page](https://github.com/mrothenbuecher/zpl-rest/raw/master/img/screenshot3.png "Reprint page")
-- label page, with label preview
-![a screenshot of the frontend](https://github.com/mrothenbuecher/zpl-rest/raw/master/img/screenshot2.png "Label page")
+## Contributing
 
-## REST-API
+Bug reports, feature ideas and pull requests are welcome. Please open an issue first for larger changes so we can discuss the approach. If you use zpl-rest in production, a short note in [Discussions](https://github.com/mrothenbuecher/zpl-rest/discussions) about your setup helps to decide what to work on next.
 
-| Method              | Path                      | parameter                                                                                                                     | description                                                                                           |
-| ------------------- | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| get                 | /rest/printer             | none                                                                                                                          | list of all printers                                                                                  |
-| get                 | /rest/label               | none                                                                                                                          | list of all labels                                                                                    |
-| get                 | /rest/jobs                | none                                                                                                                          | list of all printjobs                                                                                 |
-| get                 | /rest/preview             | ?printer=printer_id&label=label_id(&zpl=...)                                                                                  | generates a preview of the label using [this service](http://labelary.com/service.html#node) as base64|
-| post                | /rest/print               | {printer:"printer_id...",label:"label_id...", data: {...}(,job_id:"...")}                                                     | actual print                                                                                          |
-| post                | /rest/reprint/(:jobid)    | ({printer:"printer_id...", zpl:"..."})                                                                                        | reprint, change printer if wanted or ZPL-code                                                         |
-| post                | /rest/preview             | {printer:"printer_id...",label:"label_id..."(,zpl:"...")}                                                                     | generates a preview of the label using [this service](http://labelary.com/service.html#node) as base64|
-| post                | /rest/printer             | to add : {address:"..",name:"...",density:"..."} for update {_id:"...",address:"..",name:"...",density:"..."}                 | add or update a printer                                                                               |
-| post                | /rest/label               | to add : {name:"...",zpl:"...",width:"...",height:"..."} for update {_id:"...",name:"...",zpl:"...",width:"...",height:"..."} | add or update a label                                                                                 |
-| delete              | /rest/printer/(:printerid)| none                                                                                                                          | removes a printer with the given id                                                                   |
-| delete              | /rest/label/(:labelid)    | none                                                                                                                          | removes a label with the given id                                                                     |
+You can also [take part in this short survey](https://forms.gle/7CUv6PXQuTXQQgsR9).
 
-You can optionally supply a `job_id` when calling `/rest/print`. This identifier is stored with the print job and displayed in the dashboard failure list and on the reprint page to make it easier to match REST jobs with your own system.
+## Credits
 
-## options
-you can edit the config.js with following options:
+- Frontend template: [SB Admin 2](https://startbootstrap.com/themes/sb-admin-2/)
+- Label previews: [Labelary](http://labelary.com/service.html)
 
-| Option              | Type          | description                                    |  Default  |
-| ------------------- |:-------------:| ---------------------------------------------- | :-------: |
-| port                | int           | port for the RESTAPI                           |    8000   |
-| websocket_port      | int           | websocket port for the frontend                |    8001   |
-| public              | bool          | if `false` server only reachable for localhost |     true  |
-| secret              | string        | the session secret                             |           |
+## Support the project
 
-# thanks to
-[template for the frontend](https://startbootstrap.com/themes/sb-admin-2/)
-
-[labelary for providing the preview service](http://labelary.com/service.html#node)
-
-# a little help is welcome :)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=KNC9P27TLHGDE&source=url)
+
+## License
+
+[MIT](LICENSE)
